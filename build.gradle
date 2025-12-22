@@ -40,6 +40,7 @@ repositories {
 	maven { url = "https://mvn.devos.one/releases/" }
 	maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
 	maven { url = "https://modmaven.dev" }
+	maven { url = "maven.tterrag.com" }
 	maven { url = 'https://maven.valkyrienskies.org' }
 	maven { // Reach Entity Attributes
 		url = "https://maven.jamieswhiteshirt.com/libs-release"
@@ -62,6 +63,11 @@ loom {
 //			sourceSet sourceSets.client
 //		}
 //	}
+	runs {
+        client {
+            vmArgs "-Dsodium.checks.issue2561=false -Dmixin.debug.export=true"
+        }
+    }
 }
 
 dependencies {
@@ -88,14 +94,14 @@ dependencies {
 	modImplementation("maven.modrinth:modmenu:7.2.2")
 
 	// Create
-	modImplementation("com.simibubi.create:create-fabric-${minecraft_version}:0.5.1-f-build.1335+mc1.20.1")
+	modImplementation("com.simibubi.create:create-fabric-1.20.1:6.0.7.0+mc1.20.1-build.1716")
 
 	// Immersive Aircraft
 	modRuntimeOnly("maven.modrinth:immersive-aircraft:1.1.2+1.20.1")
 	runtimeOnly('org.mariuszgromada.math:MathParser.org-mXparser:5.2.1')
 
 	// Valkyrien Skies
-	modApi("org.valkyrienskies:valkyrienskies-120-fabric:${vs2_version}") {
+	modApi("org.valkyrienskies:valkyrienskies-120-fabric:${vs2_version}") { transitive = false
 		exclude group: 'com.simibubi', module: ''
 		exclude group: 'dev.engine-room', module: ''
 		exclude group: 'com.jozufozu', module: ''
@@ -103,12 +109,18 @@ dependencies {
 	implementation("org.valkyrienskies.core:api:${vscore_version}") {
 		exclude group: 'org.joml', module: ''
 	}
-	implementation("org.valkyrienskies.core:api-game:${vscore_version}") {
-		exclude group: 'org.joml', module: ''
-	}
+	implementation("org.valkyrienskies.core:internal:${vscore_version}") {
+        exclude group: 'org.joml', module: ''
+    }
 	implementation("org.valkyrienskies.core:util:${vscore_version}") {
 		exclude group: 'org.joml', module: ''
 	}
+	implementation("org.valkyrienskies.core:impl:${vscore_version}") {
+        exclude group: 'org.joml', module: 'joml'
+    }
+
+	include(implementation("com.fasterxml:classmate:1.5.1"))
+
 
     include(implementation(annotationProcessor("com.github.bawnorton.mixinsquared:mixinsquared-fabric:0.2.0-beta.6")))
 

@@ -4,7 +4,7 @@ import com.moulberry.flashback.action.Action;
 import com.moulberry.flashback.action.ActionRegistry;
 import net.minecraft.network.FriendlyByteBuf;
 import org.jetbrains.annotations.Nullable;
-import org.valkyrienskies.core.apigame.world.ServerShipWorldCore;
+import org.valkyrienskies.core.internal.world.VsiServerShipWorld;
 
 public class ValkyrienSkiesSupport {
 
@@ -14,7 +14,7 @@ public class ValkyrienSkiesSupport {
         ActionRegistry.register(ActionShipRemove.INSTANCE);
     }
 
-    public static void clearDataForPlayingSnapshot(ServerShipWorldCore world) {
+    public static void clearDataForPlayingSnapshot(VsiServerShipWorld world) {
         // preventing a ConcurrentModificationException here
         for (var ship : world.getAllShips().stream().toList()) {
             world.deleteShip(ship);

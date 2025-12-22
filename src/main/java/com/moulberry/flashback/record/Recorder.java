@@ -1,5 +1,6 @@
 package com.moulberry.flashback.record;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.mojang.authlib.GameProfile;
@@ -66,10 +67,12 @@ import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.*;
 import org.jetbrains.annotations.Nullable;
-import org.valkyrienskies.core.impl.game.ships.ShipObject;
-import org.valkyrienskies.core.impl.hooks.CoreHooksImplKt;
+import org.valkyrienskies.core.api.ships.QueryableShipData;
+import org.valkyrienskies.core.api.world.ClientShipWorld;
+import org.valkyrienskies.core.impl.game.ships.ShipDataCommon;
 import org.valkyrienskies.core.impl.networking.impl.PacketShipDataCreate;
-import org.valkyrienskies.core.impl.networking.simple.SimplePackets;
+import org.valkyrienskies.core.impl.util.serialization.VSJacksonUtil;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 import org.valkyrienskies.mod.mixinducks.client.world.ClientChunkCacheDuck;
 
 import java.io.File;
@@ -902,13 +905,18 @@ public class Recorder {
         this.asyncReplaySaver.writeGamePackets(gamePackets);
         gamePackets.clear();
         if (FabricLoader.getInstance().isModLoaded("valkyrienskies")) {
-            var world = CoreHooksImplKt.getCoreHooks().getCurrentShipClientWorld();
-            var shipData = world.getLoadedShips().stream().map(ship -> ((ShipObject) ship).getShipData()).toList();
-            var simplePacket = new PacketShipDataCreate(shipData);
+            var world = VSGameUtilsKt.getShipObjectWorld(level);
+            var shipData = world.getAllShips().stream().toList();
+            var simplePacket = new PacketShipDataCreate((List<? extends ShipDataCommon>) (Object) shipData);
 
             this.asyncReplaySaver.submit(writer -> {
                 writer.startAction(ActionShipDataCreate.INSTANCE);
-                writer.friendlyByteBuf().writeBytes(SimplePackets.serialize(simplePacket));
+                try {
+                    writer.friendlyByteBuf().writeBytes(VSJacksonUtil.INSTANCE.getPacketMapper().writeValueAsBytes(simplePacket));
+                } catch (JsonProcessingException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 writer.finishAction(ActionShipDataCreate.INSTANCE);
             });
         }
