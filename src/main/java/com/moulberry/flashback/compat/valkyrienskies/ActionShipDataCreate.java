@@ -21,6 +21,8 @@ import java.io.InputStream;
 
 import org.joml.Matrix3d;
 import org.joml.Vector3d;
+import org.joml.Vector3i;
+import org.joml.Vector3ic;
 import org.valkyrienskies.core.api.ships.ClientShip;
 import org.valkyrienskies.core.impl.game.ships.PhysPoseImpl;
 import org.valkyrienskies.core.impl.game.ships.ShipData;
@@ -32,8 +34,10 @@ import org.valkyrienskies.core.impl.shadow.Ep;
 import org.valkyrienskies.core.impl.shadow.Er;
 import org.valkyrienskies.core.impl.util.serialization.VSJacksonUtil;
 import org.valkyrienskies.core.internal.ships.VsiMutableQueryableShipData;
+import org.valkyrienskies.core.internal.world.VsiServerShipWorld;
 import org.valkyrienskies.mod.common.IShipObjectWorldClientProvider;
 import org.valkyrienskies.mod.common.IShipObjectWorldServerProvider;
+import org.valkyrienskies.mod.common.VSGameUtilsKt;
 
 public class ActionShipDataCreate implements Action {
     private static final ResourceLocation NAME = Flashback
@@ -64,18 +68,8 @@ public class ActionShipDataCreate implements Action {
             // VsiServerShipWorld shipWorld
             var shipWorld = ((Er) ((IShipObjectWorldServerProvider) replayServer).getShipObjectWorld());
             for (var toCreate : packet.getToCreate()) {
-                // ShipData newShip = ((ShipObjectServerWorldAccessor) (Object) (Er)
-                // shipWorld).getB().createEmpty(toCreate.getSlug(), toCreate.getId(),
-                // toCreate.getChunkClaim(), toCreate.getChunkClaimDimension(),
-                // toCreate.getTransform().getPositionInWorld(),
-                // toCreate.getTransform().getPositionInShip(),
-                // toCreate.getTransform().getScaling().x(), false);
-                // newShip.setKinematics(toCreate.getKinematics());
-                // newShip.setWorldAABB(toCreate.getWorldAABB());
-                // newShip.setShipAABB(toCreate.getShipAABB());
-
-                System.out.println("creating ship with id " + toCreate.getId());
-                ShipData newShip = new ShipData(
+                // System.out.println("creating ship with id " + toCreate.getId());
+                shipWorld.a().add(new ShipData(
                         toCreate.getId(),
                         toCreate.getSlug(),
                         toCreate.getChunkClaim(),
@@ -91,10 +85,7 @@ public class ActionShipDataCreate implements Action {
                                 toCreate.getKinematics().getRotation()),
                         ((ShipFactoryAccessor) (Object) ((ShipObjectServerWorldAccessor) (Object) shipWorld).getB())
                                 .getAttachmentHolderFactory().a(),
-                        0);
-                shipWorld.a().add(newShip);
-                // ((VsiMutableQueryableShipData<ClientShip>)(((IShipObjectWorldClientProvider) Minecraft.getInstance()).getShipObjectWorld())
-                //         .getAllShips()).add(BullshitInvoker.invokeConstructor(newShip, VSJacksonUtil.INSTANCE.getDeltaMapper().valueToTree(newShip)));
+                        0));
             }
         } catch (IOException e) {
 

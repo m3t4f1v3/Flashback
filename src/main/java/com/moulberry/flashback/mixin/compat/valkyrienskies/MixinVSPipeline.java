@@ -17,6 +17,8 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Pseudo;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.valkyrienskies.core.impl.config.VSCoreConfig;
 import org.valkyrienskies.core.impl.shadow.FC;
 import org.valkyrienskies.core.impl.shadow.FJ;
@@ -26,47 +28,21 @@ import org.valkyrienskies.core.internal.world.VsiServerShipWorld;
 @IfModLoaded("valkyrienskies")
 @Pseudo
 @Mixin(value = FM.class, remap = false)
-public abstract class MixinVSPipeline {
-
-    @Shadow(remap = false)
-    public abstract VsiServerShipWorld getShipWorld();
+public class MixinVSPipeline {
 
     @WrapMethod(method = "getArePhysicsRunning", remap = false)
     public boolean getArePhysicsRunning(Operation<Boolean> original) {
+        // System.out.println("getArePhysicsRunning called");
         // Do not run the physics engine
         return !Flashback.isInReplay() && original.call();
     }
 
-    @Overwrite(remap = false)
-    public void postTickGame() {
-        System.out.println("rizz");
-        if (((BullshitAccessor) (Object) this).getC()) {
-            Lock var1;
-            (var1 = (Lock) ((BullshitAccessor) (Object) this).getD().b()).lock();
-
-            try {
-                int var2 = VSCoreConfig.SERVER.getPt().getPhysicsTicksPerGameTick();
-
-                while (((BullshitAccessor) (Object) this).getD().a() < var2) {
-                    ((BullshitAccessor) (Object) this).getD().c().await();
-                }
-
-                Unit var10000 = Unit.INSTANCE;
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } finally {
-                var1.unlock();
-            }
-        }
-
-        FC var7 = ((BullshitAccessor) (Object) this).getE().b();
-        FJ var6 = ((BullshitAccessor) (Object) this).getB();
-        Intrinsics.checkNotNull(var6);
-        FJ var3 = var6;
-
-        if (!Flashback.isInReplay()) {
-            var3.a(var7);
+    @Inject(method = "postTickGame", at = @At(value = "INVOKE", target = "Lkotlin/jvm/internal/Intrinsics;checkNotNull(Ljava/lang/Object;)V"), remap = false, cancellable = true)
+    public void postTickGame(CallbackInfo ci) {
+        // thanks bricky
+        // Do not accumulate game frames
+        if (Flashback.isInReplay()) {
+            ci.cancel();
         }
     }
 

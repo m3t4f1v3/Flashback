@@ -46,10 +46,6 @@ public class ActionShipDataDeltaUpdate implements Action {
                     System.out.println("ship id " + ship.getId());
                     System.out.println("ship position " + ship.getTransform().getPosition());
                 }
-                for (ServerShip ship : shipWorld.getLoadedShips()) {
-                    System.out.println("loaded ship id " + ship.getId());
-                    System.out.println("loaded ship position " + ship.getTransform().getPosition());
-                }
                 ServerShip ship = shipWorld.getAllShips().getById(id);
 
                 if (ship == null) {
