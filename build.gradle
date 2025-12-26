@@ -96,6 +96,8 @@ dependencies {
 	// Create
 	modImplementation("com.simibubi.create:create-fabric-1.20.1:6.0.7.0+mc1.20.1-build.1716")
 
+	include(implementation('com.fasterxml.jackson.core:jackson-core:2.20.1'))
+
 	// Immersive Aircraft
 	modRuntimeOnly("maven.modrinth:immersive-aircraft:1.1.2+1.20.1")
 	runtimeOnly('org.mariuszgromada.math:MathParser.org-mXparser:5.2.1')
